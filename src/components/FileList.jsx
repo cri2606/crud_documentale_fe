@@ -42,21 +42,30 @@ export const FileList = () => {
   // Gestisce il download del file
   const handleDownload = async (id, filename) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/documenti/${id}/download`);
-      if (!response.ok) throw new Error('Errore nel download del file');
+        // Show loading state if you have one
+        const response = await fetch(`http://localhost:8080/api/documenti/${id}/download`);
+        if (!response.ok) {
+            throw new Error('Errore nel download del file');
+        }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      window.URL.revokeObjectURL(url);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        
+        // Show success message
+        alert('Download completato con successo!');
     } catch (error) {
-      console.error('Errore durante il download:', error);
+        console.error('Errore durante il download:', error);
+        // Show error message to user
+        alert('Si è verificato un errore durante il download del file. Riprova più tardi.');
     }
-  };
+};
 
   const iconMap = {
     pdf: { Comp: FileText, color: 'text-red-500' },
