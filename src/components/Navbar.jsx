@@ -39,6 +39,7 @@ export const Navbar = () => {
         console.log('File caricato con successo!');
         alert('File caricato con successo!');
         setSelectedFile(null);
+        window.location.reload();
       } else {
         console.error('Errore nel caricamento del file.');
         alert('Errore nel caricamento.');
