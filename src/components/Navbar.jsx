@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Search, Upload } from 'lucide-react';
 
-export const Navbar = () => {
+export const Navbar = ({onSearch}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log('Ricerca effettuata:', searchQuery);
-    // Qui puoi implementare la logica di ricerca
+    if (searchQuery.trim())
+      onSearch(searchQuery);
   };
 
   const handleFileChange = (e) => {
@@ -56,6 +56,7 @@ export const Navbar = () => {
         {/* Logo a sinistra */}
         <div className="flex-shrink-0">
           <div className="flex items-center">
+            {/* <img src="../public/site-logo.png" alt="Logo" className="h-8 w-8 rounded-md flex items-center justify-center text-white font-bold text-xl" /> */}
             <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold text-xl">L</div>
             <span className="ml-2 text-xl font-semibold text-gray-800">Logo</span>
           </div>

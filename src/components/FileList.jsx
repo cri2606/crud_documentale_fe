@@ -1,27 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { File, FileText, Table, Download } from 'lucide-react';
 
-export const FileList = () => {
-  const [files, setFiles] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:8080/api/documenti')
-      .then((response) => response.json())
-      .then((data) => {
-        const mappedData = data.map(doc => ({
-          id: doc.id,
-          title: doc.titolo,
-          author: doc.autore,
-          size: formatSize(doc.dimensione),
-          type: guessFileType(doc.titolo)
-        }));
-        setFiles(mappedData);
-      })
-      .catch((error) => {
-        console.error('Errore durante il fetch dei documenti:', error);
-      });
-  }, []);
-
+export const FileList = ({ documenti }) => {
   // Formatta la dimensione da byte a MB/KB
   const formatSize = (bytes) => {
     if (bytes >= 1_000_000) return (bytes / 1_000_000).toFixed(1) + ' MB';
@@ -42,30 +22,24 @@ export const FileList = () => {
   // Gestisce il download del file
   const handleDownload = async (id, filename) => {
     try {
-        // Show loading state if you have one
-        const response = await fetch(`http://localhost:8080/api/documenti/${id}/download`);
-        if (!response.ok) {
-            throw new Error('Errore nel download del file');
-        }
+      const response = await fetch(`http://localhost:8080/api/documenti/${id}/download`);
+      if (!response.ok) throw new Error('Errore nel download del file');
 
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
 
-        window.URL.revokeObjectURL(url);
-        
-        // Show success message
-        alert('Download completato con successo!');
+      window.URL.revokeObjectURL(url);
+      alert('Download completato con successo!');
     } catch (error) {
-        console.error('Errore durante il download:', error);
-        // Show error message to user
-        alert('Si è verificato un errore durante il download del file. Riprova più tardi.');
+      console.error('Errore durante il download:', error);
+      alert('Si è verificato un errore durante il download del file. Riprova più tardi.');
     }
-};
+  };
 
   const iconMap = {
     pdf: { Comp: FileText, color: 'text-red-500' },
@@ -77,19 +51,19 @@ export const FileList = () => {
 
   return (
     <div className="w-[70%] mx-auto grid grid-cols-1 gap-4">
-      {files.map((file, index) => {
-        const { Comp: IconComp, color } = iconMap[file.type] || iconMap.default;
+      {documenti.map((doc, index) => {
+        const { Comp: IconComp, color } = iconMap[guessFileType(doc.titolo)] || iconMap.default;
         return (
           <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
             <div className="flex items-start">
               <IconComp className={`w-6 h-6 ${color} mr-3`} />
               <div>
-                <div className="font-bold">{file.title}</div>
-                <div>{file.author} — {file.size}</div>
+                <div className="font-bold">{doc.titolo}</div>
+                <div>{doc.autore} — {formatSize(doc.dimensione)}</div>
               </div>
             </div>
             <button
-              onClick={() => handleDownload(file.id, file.title)}
+              onClick={() => handleDownload(doc.id, doc.titolo)}
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center"
             >
               <Download className="w-4 h-4 mr-2" />
@@ -98,8 +72,10 @@ export const FileList = () => {
           </div>
         );
       })}
+      <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded" onClick={() => window.location.href = '/'}>Torna indietro</button>
     </div>
   );
 };
 
 export default FileList;
+
