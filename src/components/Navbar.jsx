@@ -1,68 +1,27 @@
-import { useState } from 'react';
+// Navbar.jsx
 import { Search, Upload } from 'lucide-react';
+import { useNavbarLogic } from '../hooks/useNavbarLogic';
 
-export const Navbar = ({onSearch}) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim())
-      onSearch(searchQuery);
-  };
-
-  const handleFileChange = (e) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      setSelectedFile(files[0]);
-      console.log('File selezionato:', files[0].name);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      alert('Seleziona un file prima di inviarlo.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('autore', 'Autore esempio');
-
-    try {
-      const response = await fetch('http://localhost:8080/api/documenti/salva', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        console.log('File caricato con successo!');
-        alert('File caricato con successo!');
-        setSelectedFile(null);
-        window.location.reload();
-      } else {
-        console.error('Errore nel caricamento del file.');
-        alert('Errore nel caricamento.');
-      }
-    } catch (error) {
-      console.error('Errore durante l\'upload:', error);
-      alert('Errore di connessione.');
-    }
-  };
+export const Navbar = ({ onSearch }) => {
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedFile,
+    handleSearch,
+    handleFileChange,
+    handleUpload
+  } = useNavbarLogic(onSearch);
 
   return (
     <nav className="bg-white shadow-md px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo a sinistra */}
-        <div className="flex-shrink-0">
-          <div className="flex items-center">
-            {/* <img src="../public/site-logo.png" alt="Logo" className="h-8 w-8 rounded-md flex items-center justify-center text-white font-bold text-xl" /> */}
-            <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold text-xl">L</div>
-            <span className="ml-2 text-xl font-semibold text-gray-800">Logo</span>
-          </div>
+        {/* Logo */}
+        <div className="flex-shrink-0 flex items-center">
+          <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold text-xl">L</div>
+          <span className="ml-2 text-xl font-semibold text-gray-800">Logo</span>
         </div>
 
-        {/* Barra di ricerca al centro */}
+        {/* Search */}
         <div className="flex-1 max-w-lg mx-4">
           <form onSubmit={handleSearch} className="flex">
             <input
@@ -81,7 +40,7 @@ export const Navbar = ({onSearch}) => {
           </form>
         </div>
 
-        {/* Pulsante carica file a destra */}
+        {/* Upload */}
         <div className="flex-shrink-0">
           <label htmlFor="file-upload" className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500">
             <Upload size={20} className="mr-2" />
@@ -95,9 +54,7 @@ export const Navbar = ({onSearch}) => {
           </label>
           {selectedFile && (
             <div className="mt-2">
-              <p className="text-xs text-gray-600 max-w-xs truncate">
-                File: {selectedFile.name}
-              </p>
+              <p className="text-xs text-gray-600 max-w-xs truncate">File: {selectedFile.name}</p>
               <button
                 onClick={handleUpload}
                 className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
